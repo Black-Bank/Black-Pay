@@ -5,7 +5,7 @@ import { PayResponse } from './types';
 export class AppService {
   getBalance(): PayResponse {
     return {
-      name: 'cyro ',
+      name: 'cyro Renato',
       value: 1000,
     };
   }
