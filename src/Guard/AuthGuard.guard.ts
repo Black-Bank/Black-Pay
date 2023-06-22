@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import Crypto from './Crypto.service';
 
@@ -11,9 +16,14 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const crypto = this.crypto;
     const isProd = Boolean(process.env.NODE_ENV === 'prod');
-    const isAuthenticated =
-      crypto.decrypt(request.headers.authorization) ===
-      (isProd ? process.env.PROD_PIX_AUTH_KEY : process.env.PIX_AUTH_KEY);
-    return isAuthenticated;
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
+      throw new ForbiddenException('No authorization header');
+    } else {
+      const isAuthenticated =
+        crypto.decrypt(authHeader) ===
+        (isProd ? process.env.PROD_PIX_AUTH_KEY : process.env.PIX_AUTH_KEY);
+      return isAuthenticated;
+    }
   }
 }
