@@ -2,22 +2,19 @@ import Web3 from 'web3';
 import { TETHER_USD_ABI } from './ABI/TETHER_USD_ABI';
 import { ForbiddenException } from '@nestjs/common';
 
-// Inicialize o provedor Ethereum (por exemplo, Infura)
-const provider = new Web3.providers.HttpProvider(
-  'https://mainnet.infura.io/v3/7a667ca0597c4320986d601e8cac6a0a',
-);
-
-// Crie uma instância do objeto Web3
-const web3 = new Web3(provider);
-
 class Contract {
+  private web3: Web3;
+  constructor() {
+    const provider = new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER);
+    this.web3 = new Web3(provider);
+  }
   public async getBalance(
     walletAddress: string,
     contractAddress: string,
     contractFactor: number,
   ): Promise<number> {
     try {
-      const tetherContract = new web3.eth.Contract(
+      const tetherContract = new this.web3.eth.Contract(
         TETHER_USD_ABI,
         contractAddress,
       );
