@@ -1,5 +1,6 @@
 import Web3 from 'web3';
 import { TETHER_USD_ABI } from './ABI/TETHER_USD_ABI';
+import { ForbiddenException } from '@nestjs/common';
 
 // Inicialize o provedor Ethereum (por exemplo, Infura)
 const provider = new Web3.providers.HttpProvider(
@@ -29,8 +30,7 @@ class Contract {
 
       return Number((Number(balance) / contractFactor).toFixed(2));
     } catch (error) {
-      console.error('Erro ao obter o saldo Tether:', error);
-      throw error;
+      throw new ForbiddenException(`An Error Occoured: ${error.message}`);
     }
   }
 }
