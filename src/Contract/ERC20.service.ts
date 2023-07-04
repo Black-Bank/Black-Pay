@@ -4,9 +4,8 @@ import { ForbiddenException } from '@nestjs/common';
 
 class Contract {
   private web3: Web3;
-  constructor() {
-    const provider = new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER);
-    this.web3 = new Web3(provider);
+  constructor(web3: Web3) {
+    this.web3 = web3;
   }
   public async getBalance(
     walletAddress: string,

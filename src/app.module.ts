@@ -9,6 +9,7 @@ import { AuthGuard } from './Guard/AuthGuard.guard';
 import Crypto from './Guard/Crypto.service';
 import Contract from './Contract/ERC20.service';
 import { ContractController } from './Contract/ERC20.controller';
+import { Web3Service } from './Contract/ERC20.loader';
 
 @Module({
   imports: [],
@@ -18,6 +19,6 @@ import { ContractController } from './Contract/ERC20.controller';
     RequestController,
     ContractController,
   ],
-  providers: [AppService, AuthGuard, Crypto, Contract],
+  providers: [AppService, AuthGuard, Crypto, Contract, Web3Service],
 })
 export class AppModule {}
