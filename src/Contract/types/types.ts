@@ -4,6 +4,7 @@ export interface RequestContract {
     address: string;
     contractAddress: string;
     contractFactor: number;
+    contractType: string;
   };
 }
 
@@ -21,6 +22,7 @@ export interface RequestContractSendToken {
     addressTo: string;
     amount: number;
     privateKey: string;
+    contractType: string;
   };
 }
 

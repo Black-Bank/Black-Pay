@@ -26,7 +26,13 @@ export class ContractController {
   ): Promise<ResponseContract> {
     const contractAddress = request.body.contractAddress;
     const contractFactor = request.body.contractFactor;
-    const contract = new Contract(this.web3, contractAddress, contractFactor);
+    const contractType = request.body.contractType;
+    const contract = new Contract(
+      this.web3,
+      contractAddress,
+      contractFactor,
+      contractType,
+    );
     const address = request.body.address;
     const name = request.body.name;
 
@@ -44,7 +50,13 @@ export class ContractController {
     const name = request.body.name;
     const contractAddress = request.body.contractAddress;
     const contractFactor = request.body.contractFactor;
-    const contract = new Contract(this.web3, contractAddress, contractFactor);
+    const contractType = request.body.contractType;
+    const contract = new Contract(
+      this.web3,
+      contractAddress,
+      contractFactor,
+      contractType,
+    );
     const addressFrom = request.body.addressFrom;
     const addressTo = request.body.addressTo;
     const amount = request.body.amount;

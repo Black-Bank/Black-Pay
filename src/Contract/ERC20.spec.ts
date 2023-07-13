@@ -59,6 +59,7 @@ describe('ContractController', () => {
           name: 'USD Tether',
           contractAddress: contractAddress,
           contractFactor: 1000000,
+          contractType: 'Dollar',
         },
       };
 
@@ -76,6 +77,7 @@ describe('ContractController', () => {
           name: 'USD Tether',
           contractAddress: contractAddress,
           contractFactor: 1000000,
+          contractType: 'Dollar',
         },
       };
 
@@ -97,6 +99,7 @@ describe('ContractController', () => {
           name: 'USD Tether',
           contractAddress: contractAddress,
           contractFactor: 1000000,
+          contractType: 'Dollar',
         },
       };
 
@@ -122,6 +125,7 @@ value "${walletAddress}" at \"/0\" must pass \"address\" validation`,
           amount: 1,
           privateKey:
             'Dga+BdasasZiT6VLacl0vdxhahdahmdjhahryzTAKZCuz8QTEVB2TTYyXTSCFMlakjdbadhalzso3Nf5EIljk=',
+          contractType: 'Dollar',
         },
       };
 

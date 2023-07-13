@@ -1,13 +1,29 @@
-import Web3 from 'web3';
+import Web3, { ContractAbi } from 'web3';
 import { TETHER_USD_ABI } from './ABI/TETHER_USD_ABI';
 import { ForbiddenException } from '@nestjs/common';
+import { ContractType } from './Enum/Enum';
 
 class Contract {
   private web3: Web3;
   private contractAddress: string;
   private contractFactor: number;
+  private contractAbi: ContractAbi;
 
-  constructor(web3: Web3, contractAddress: string, contractFactor: number) {
+  constructor(
+    web3: Web3,
+    contractAddress: string,
+    contractFactor: number,
+    contractType: string,
+  ) {
+    switch (contractType) {
+      case ContractType.Dollar:
+        this.contractAbi = TETHER_USD_ABI;
+        break;
+
+      default:
+        this.contractAbi = TETHER_USD_ABI;
+    }
+
     this.web3 = web3;
     this.contractAddress = contractAddress;
     this.contractFactor = contractFactor;
@@ -15,7 +31,7 @@ class Contract {
   public async getBalance(walletAddress: string): Promise<number> {
     try {
       const tetherContract = new this.web3.eth.Contract(
-        TETHER_USD_ABI,
+        this.contractAbi,
         this.contractAddress,
       );
 
@@ -40,7 +56,7 @@ class Contract {
   ): Promise<string> {
     try {
       const tetherContract = new this.web3.eth.Contract(
-        TETHER_USD_ABI,
+        this.contractAbi,
         this.contractAddress,
       );
       const decimalAmount = amount * contractFactor;
