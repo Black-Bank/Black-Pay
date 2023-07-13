@@ -9,7 +9,7 @@ import {
 } from './types/types';
 import Web3 from 'web3';
 import { Web3Service } from './ERC20.loader';
-import Crypto from 'src/Guard/Crypto.service';
+import Crypto from '../Guard/Crypto.service';
 @Controller('balance')
 @UseGuards(AuthGuard)
 export class ContractController {

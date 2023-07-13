@@ -4,6 +4,7 @@ import { AuthGuard } from '../Guard/AuthGuard.guard';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { ForbiddenException } from '@nestjs/common';
+import Crypto from '../Guard/Crypto.service';
 
 const dotenvPath = path.resolve(__dirname, '..', '..', '.env');
 dotenv.config({ path: dotenvPath });
@@ -38,6 +39,7 @@ describe('ContractController', () => {
           provide: 'Web3Service',
           useClass: Web3ServiceMock, // Use the mock class
         },
+        Crypto,
       ],
     })
       .overrideGuard(AuthGuard) // Mock do AuthGuard
@@ -47,7 +49,7 @@ describe('ContractController', () => {
     controller = module.get<ContractController>(ContractController);
   });
 
-  describe('getContractBalance', () => {
+  describe('Contract Test Service', () => {
     it('should return the contract balance', async () => {
       const walletAddress = '0x38EA452219524Bb87e18dE1C24D3bB59510BD783'; // Random Tether USD Wallet Address
       const contractAddress = '0xdac17f958d2ee523a2206206994597c13d831ec7'; // Tether USD Contract Address
@@ -107,6 +109,28 @@ describe('ContractController', () => {
         `An Error Occoured: Web3 validator found 1 error[s]:
 value "${walletAddress}" at \"/0\" must pass \"address\" validation`,
       );
+    });
+
+    it('should throw ForbiddenException if an error occurs during transaction sending, Wrong private Key', async () => {
+      const request = {
+        body: {
+          name: 'dolar',
+          addressFrom: '0xcCbCB62862BCDbD1327a91047e626dF7de411003',
+          addressTo: '0x060B98CF95009dBdEeD4484a2fE127571085D31C',
+          contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+          contractFactor: 1000000,
+          amount: 1,
+          privateKey:
+            'Dga+BdasasZiT6VLacl0vdxhahdahmdjhahryzTAKZCuz8QTEVB2TTYyXTSCFMlakjdbadhalzso3Nf5EIljk=',
+        },
+      };
+
+      const testFunc = async () => {
+        await controller.sendToken(request);
+      };
+
+      // Assert
+      await expect(testFunc).rejects.toThrow(ForbiddenException);
     });
   });
 });
