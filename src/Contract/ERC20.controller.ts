@@ -77,4 +77,39 @@ export class ContractController {
       txHash: txHash,
     };
   }
+
+  @Get('maweTransaction')
+  async maweTransaction(
+    @Req() request: RequestContractSendToken,
+  ): Promise<ResponseContractSendToken> {
+    const name = request.body.name;
+    const contractAddress = request.body.contractAddress;
+    const contractFactor = request.body.contractFactor;
+    const contractType = request.body.contractType;
+    const contract = new Contract(
+      this.web3,
+      contractAddress,
+      contractFactor,
+      contractType,
+    );
+    const addressFrom = request.body.addressFrom;
+    const addressTo = request.body.addressTo;
+    const amount = request.body.amount;
+    const privateKey = this.crypto.decrypt(request.body.privateKey);
+
+    const txHash = await contract.maweCoreTransactions(
+      addressFrom,
+      addressTo,
+      amount,
+      contractFactor,
+      privateKey,
+    );
+    return {
+      name: name,
+      value: amount,
+      addressFrom: addressFrom,
+      addressTo: addressTo,
+      txHash: txHash,
+    };
+  }
 }
