@@ -1,9 +1,4 @@
 import { Module } from '@nestjs/common';
-import {
-  AppController,
-  CatsController,
-  RequestController,
-} from './app.controller';
 import { AuthGuard } from './Guard/AuthGuard.guard';
 import Crypto from './Guard/Crypto.service';
 import Contract from './Contract/ERC20.service';
@@ -12,12 +7,7 @@ import { Web3Service } from './Contract/ERC20.loader';
 
 @Module({
   imports: [],
-  controllers: [
-    AppController,
-    CatsController,
-    RequestController,
-    ContractController,
-  ],
+  controllers: [ContractController],
   providers: [AuthGuard, Crypto, Contract, Web3Service],
 })
 export class AppModule {}
