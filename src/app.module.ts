@@ -4,7 +4,6 @@ import {
   CatsController,
   RequestController,
 } from './app.controller';
-import { AppService } from './app.service';
 import { AuthGuard } from './Guard/AuthGuard.guard';
 import Crypto from './Guard/Crypto.service';
 import Contract from './Contract/ERC20.service';
@@ -19,6 +18,6 @@ import { Web3Service } from './Contract/ERC20.loader';
     RequestController,
     ContractController,
   ],
-  providers: [AppService, AuthGuard, Crypto, Contract, Web3Service],
+  providers: [AuthGuard, Crypto, Contract, Web3Service],
 })
 export class AppModule {}
