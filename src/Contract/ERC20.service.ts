@@ -2,6 +2,7 @@ import Web3, { ContractAbi } from 'web3';
 import { TETHER_USD_ABI } from './ABI/TETHER_USD_ABI';
 import { ForbiddenException } from '@nestjs/common';
 import { ContractType } from './Enum/Enum';
+import { CoinPrice } from 'src/utils/getCoinPrice';
 
 class Contract {
   private web3: Web3;
@@ -109,7 +110,9 @@ class Contract {
   ): Promise<string> {
     const balance = Number(await this.web3.eth.getBalance(addressFrom));
     const gasPrice = Number(await this.web3.eth.getGasPrice());
-    const valueWei = this.web3.utils.toWei(String(amount * 0.02), 'ether');
+    const ETHPrice = await CoinPrice('ETH');
+    const ETHAmount = Number(amount / Number(ETHPrice));
+    const valueWei = this.web3.utils.toWei(String(ETHAmount * 0.02), 'ether');
     const gasEstimate = gasPrice * 21000;
 
     if (balance < Number(valueWei) + gasEstimate) {
