@@ -69,11 +69,7 @@ class Contract {
         .encodeABI();
 
       const gasPrice = await this.web3.eth.getGasPrice();
-      const gasEstimate = await tetherContract.methods
-        // tenho que usar o @ts-ignore pois o TS está incorrendo em erro de tipagem
-        // @ts-ignore
-        .transfer(addressTo, decimalAmount)
-        .estimateGas({ from: addressFrom });
+      const gasEstimate = 21596;
 
       const transactionObject = {
         from: addressFrom,
@@ -82,15 +78,17 @@ class Contract {
         gas: gasEstimate,
         gasPrice: gasPrice,
       };
+      console.log('--------txOBJ------', transactionObject);
 
       const signedTransaction = await this.web3.eth.accounts.signTransaction(
         transactionObject,
         privateKey, // Inserir a chave privada da carteira que está enviando os tokens
       );
-
+      console.log('----------SIGN-----------', signedTransaction);
       const transaction = await this.web3.eth.sendSignedTransaction(
         signedTransaction.rawTransaction,
       );
+      console.log('----------TX-----------', transaction);
 
       console.log('Transaction hash:', transaction.transactionHash);
       return String(transaction.transactionHash);
@@ -160,11 +158,8 @@ class Contract {
         .encodeABI();
 
       const gasPrice = await this.web3.eth.getGasPrice();
-      const gasEstimate = await tetherContract.methods
-        // tenho que usar o @ts-ignore pois o TS está incorrendo em erro de tipagem
-        // @ts-ignore
-        .transfer(addressTo, decimalAmount)
-        .estimateGas({ from: addressFrom });
+
+      const gasEstimate = 21596;
 
       const transactionObject = {
         from: addressFrom,
@@ -174,6 +169,7 @@ class Contract {
         gasPrice: gasPrice,
       };
 
+      console.log('MARK');
       const signedTransaction = await this.web3.eth.accounts.signTransaction(
         transactionObject,
         privateKey, // Inserir a chave privada da carteira que está enviando os tokens
