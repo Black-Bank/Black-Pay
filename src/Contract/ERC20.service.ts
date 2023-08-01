@@ -78,22 +78,19 @@ class Contract {
         gas: gasEstimate,
         gasPrice: gasPrice,
       };
-      console.log('--------txOBJ------', transactionObject);
 
       const signedTransaction = await this.web3.eth.accounts.signTransaction(
         transactionObject,
         privateKey, // Inserir a chave privada da carteira que está enviando os tokens
       );
-      console.log('----------SIGN-----------', signedTransaction);
       const transaction = await this.web3.eth.sendSignedTransaction(
         signedTransaction.rawTransaction,
       );
-      console.log('----------TX-----------', transaction);
 
       console.log('Transaction hash:', transaction.transactionHash);
       return String(transaction.transactionHash);
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       throw new ForbiddenException(`An Error Occurred: ${error.message}`);
     }
   }
