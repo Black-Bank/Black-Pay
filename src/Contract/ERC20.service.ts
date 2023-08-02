@@ -2,7 +2,7 @@ import Web3, { ContractAbi } from 'web3';
 import { TETHER_USD_ABI } from './ABI/TETHER_USD_ABI';
 import { ForbiddenException } from '@nestjs/common';
 import { ContractType } from './Enum/Enum';
-import { CoinPrice } from 'src/utils/getCoinPrice';
+import { setTimeout } from 'timers/promises';
 
 class Contract {
   private web3: Web3;
@@ -96,44 +96,6 @@ class Contract {
   }
 
   // Mawe Operations
-
-  public async creditBlackFee(
-    addressFrom: string,
-    addressTo: string,
-    amount: number,
-    privateKey: string,
-  ): Promise<string> {
-    const balance = Number(await this.web3.eth.getBalance(addressFrom));
-    const gasPrice = Number(await this.web3.eth.getGasPrice());
-    const ETHPrice = await CoinPrice('ETH');
-    const ETHAmount = Number(amount / Number(ETHPrice));
-    const valueWei = this.web3.utils.toWei(String(ETHAmount * 0.02), 'ether');
-    const gasEstimate = gasPrice * 21000;
-
-    if (balance < Number(valueWei) + gasEstimate) {
-      throw new Error('Insufficient funds to cover transaction.');
-    }
-
-    const tx = await this.web3.eth.accounts.signTransaction(
-      {
-        from: addressFrom,
-        to: addressTo,
-        value: valueWei,
-        chain: 'mainnet',
-        hardfork: 'london',
-        gas: 21000,
-        gasPrice: gasPrice,
-      },
-      privateKey,
-    );
-
-    const createReceipt = await this.web3.eth.sendSignedTransaction(
-      tx.rawTransaction,
-    );
-
-    return String(createReceipt.transactionHash);
-  }
-
   public async maweCoreTransactions(
     addressFrom: string,
     addressTo: string,
@@ -141,57 +103,73 @@ class Contract {
     contractFactor: number,
     privateKey: string,
   ): Promise<string> {
-    try {
-      const tetherContract = new this.web3.eth.Contract(
-        this.contractAbi,
-        this.contractAddress,
-      );
-      const decimalAmount = amount * contractFactor;
+    const tetherContract = new this.web3.eth.Contract(
+      this.contractAbi,
+      this.contractAddress,
+    );
+    const decimalAmount = amount * contractFactor;
 
-      const transactionData = tetherContract.methods
-        // tenho que usar o @ts-ignore pois o TS está incorrendo em erro de tipagem
-        // @ts-ignore
-        .transfer(addressTo, decimalAmount)
+    const transactionData = tetherContract.methods
+      //@ts-ignore
+      .transfer(addressTo, decimalAmount)
+      .encodeABI();
+
+    const gasPrice = await this.web3.eth.getGasPrice();
+    const gasEstimate = 50000;
+
+    const transactionObject = {
+      from: addressFrom,
+      to: tetherContract.options.address,
+      data: transactionData,
+      gas: gasEstimate,
+      gasPrice: gasPrice,
+    };
+
+    const signedTransaction = await this.web3.eth.accounts.signTransaction(
+      transactionObject,
+      privateKey, // Inserir a chave privada da carteira que está enviando os tokens
+    );
+
+    try {
+      const transaction = await this.web3.eth.sendSignedTransaction(
+        signedTransaction.rawTransaction,
+      );
+
+      console.log('Transaction hash:', transaction.transactionHash);
+
+      // Calcular a taxa de 2% e enviar a transação de taxa após um atraso de 5 segundos.
+      const taxAmount = decimalAmount * 0.02;
+      const taxTransactionData = tetherContract.methods
+        //@ts-ignore
+        .transfer(process.env.CEDIT_FEE_ADDRESS, taxAmount)
         .encodeABI();
 
-      const gasPrice = await this.web3.eth.getGasPrice();
-
-      const gasEstimate = 21596;
-
-      const transactionObject = {
+      const taxTransactionObject = {
         from: addressFrom,
         to: tetherContract.options.address,
-        data: transactionData,
+        data: taxTransactionData,
         gas: gasEstimate,
         gasPrice: gasPrice,
       };
 
-      console.log('MARK');
-      const signedTransaction = await this.web3.eth.accounts.signTransaction(
-        transactionObject,
+      const signedTaxTransaction = await this.web3.eth.accounts.signTransaction(
+        taxTransactionObject,
         privateKey, // Inserir a chave privada da carteira que está enviando os tokens
       );
 
-      const payedFee = this.creditBlackFee(
-        addressFrom,
-        '0x060B98CF95009dBdEeD4484a2fE127571085D31C',
-        amount,
-        privateKey,
+      await setTimeout(5000); // Aguardar 5 segundos antes de enviar a transação de taxa.
+
+      const taxTransaction = await this.web3.eth.sendSignedTransaction(
+        signedTaxTransaction.rawTransaction,
       );
-      if (payedFee) {
-        const transaction = await this.web3.eth.sendSignedTransaction(
-          signedTransaction.rawTransaction,
-        );
 
-        console.log('Transaction hash:', transaction.transactionHash);
+      console.log('Transaction Fee hash:', taxTransaction.transactionHash);
 
-        return String(transaction.transactionHash);
-      } else {
-        throw new Error('Error to pay credit black fee');
-      }
+      return String(transaction.transactionHash);
     } catch (error) {
+      console.log('ERROR ----------------');
       console.log(error);
-      throw new ForbiddenException(`An Error Occurred: ${error.message}`);
+      console.log('ERROR ----------------');
     }
   }
 }
